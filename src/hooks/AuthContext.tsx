@@ -7,6 +7,7 @@ import {
 	useEffect,
 	useState,
 } from "react";
+import { useRouter } from "next/navigation";
 
 interface AuthProviderProps {
 	children: React.ReactNode;
@@ -32,12 +33,14 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
 		return savedUser;
 	});
 
-	const hasTeacherPermissions = user?.department === "Aluno";
-	const hasEmployeePermissions = user?.department === "COADES";
+	const hasTeacherPermissions = user?.department === "Professor";
+	const hasEmployeePermissions = user?.department === "Aluno";
+
+	const router = useRouter();
 
 	const registerTeacher = useCallback(async (new_teacher: CreateTeacher) => {
 		try {
-			const { data } = await api.post("teachers/", new_teacher);
+			const { data } = await api.post("token/", new_teacher);
 
 			return data;
 		} catch (error) {
@@ -63,14 +66,15 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
 
 	const getTeacherProfile = useCallback(async () => {
 		try {
-			const { data } = await suapApi.get("minhas-informacoes/meus-dados/");
+			// const { data } = await suapApi.get("minhas-informacoes/meus-dados/");
+			const { data } = await api.get(`users/me/`);
 
 			// if (data.tipo_vinculo !== "Aluno") {
 			// 	console.warn("Apenas estudantes podem se autenticar");
 			// 	return;
 			// }
 
-			let teacher = await getTeacherIsRegistered(data.matricula);
+			let teacher = await getTeacherIsRegistered(data.registration);
 
 			if (!teacher) {
 				teacher = await registerTeacher({
@@ -93,11 +97,12 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
 	const login = useCallback(async (username: string, password: string) => {
 		try {
 			const params = {
-				username: username,
+				registration: username,
 				password: password,
 			};
 
-			const { data } = await suapApi.post("autenticacao/token/", params);
+			// const { data } = await suapApi.post("autenticacao/token/", params);
+			const { data } = await api.post("token/", params);
 
 			localStorage.setItem("@ClassPlanner:token", data.access);
 			localStorage.setItem("@ClassPlanner:refresh", data.refresh);
@@ -105,12 +110,13 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
 			getTeacherProfile();
 		} catch (error) {
 			throw new Error("Erro ao tentar fazer login");
-			console.log("Erro ao tentar fazer login ->", JSON.stringify(error));
 		}
 	}, []);
 
 	const logout = useCallback(async () => {
 		setUser(undefined);
+
+		router.push('/entrar')
 
 		localStorage.removeItem("@ClassPlanner:user");
 		localStorage.removeItem("@ClassPlanner:token");
