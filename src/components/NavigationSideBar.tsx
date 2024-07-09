@@ -77,29 +77,28 @@ export default function NavigationSideBar(): React.ReactNode {
 
 				{hasTeacherPermissions ? (
 					<Link href={`professores/${user?.id}`} className="flex flex-row flex-shrink-0 flex-grow-0 justify-start items-center gap-4 px-4 w-full hover:bg-primary-dark-transparent transition-all rounded-2xl py-2">
-						
-							{user?.avatar ? (
-								<div className="relative w-12 h-12">
-									<Image
-										alt={user.name}
-										// src={`${user.avatar}`}
-										src={"https://cdn.suap.ifrn.edu.br/media/alunos/75x100/297566.83DOkFtG5tqW.jpeg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=ckMoPvwGQXosOUTQ0ieG%2F20240620%2Fus-east-2%2Fs3%2Faws4_request&X-Amz-Date=20240620T001701Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=99d7e1700ae6f94b4436f74552bf34c9445e62bd9dd365adb24df757365a739e"}
-										fill
-										className="object-cover rounded-full"
-									/>
-								</div>
-							) : (
-								<User
-									fontSize={48}
-									className="text-primary bg-primary-background rounded-full p-3 w-12 h-12"
+
+						{user?.avatar ? (
+							<div className="relative w-12 h-12">
+								<Image
+									alt={user.name}
+									src={`${require(user.avatar)}`}
+									fill
+									className="object-cover rounded-full"
 								/>
-							)}
-							<div>
-								<h3 className="font-semibold text-black text-sm leading-tight">
-									{user?.name}
-								</h3>
-								<p className="text-gray text-xs">{user?.department}</p>
 							</div>
+						) : (
+							<User
+								fontSize={48}
+								className="text-primary bg-primary-background rounded-full p-3 w-12 h-12"
+							/>
+						)}
+						<div>
+							<h3 className="font-semibold text-black text-sm leading-tight">
+								{user?.name}
+							</h3>
+							<p className="text-gray text-xs">{user?.department}</p>
+						</div>
 					</Link>
 				) : (
 					<header className="flex flex-row flex-shrink-0 flex-grow-0 justify-start items-center gap-4 px-4 w-full">

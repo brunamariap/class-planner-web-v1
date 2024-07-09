@@ -20,7 +20,7 @@ interface CreateClass {
 	course_id: string;
 	reference_period: number;
 	shift: string;
-	class_leader_id: number | undefined;
+	class_leader_id: number | undefined | null;
 }
 
 export default function AddClass() {
@@ -33,7 +33,7 @@ export default function AddClass() {
 			.typeError("Selecione uma opção")
 			.required("Campo período de referência é obrigatório"),
 		course_id: yup.string().required("Campo curso é obrigatório"),
-		class_leader_id: yup.number().typeError("Selecione uma opção"),
+		class_leader_id: yup.mixed(yup.number).typeError("Selecione uma opção"),
 	});
 
 	const {
@@ -69,7 +69,7 @@ export default function AddClass() {
 			return { label: name, value: id };
 		});
 
-		setStudentOptions([{ label: "Nenhum", value: 0 }, ...newStudents]);
+		setStudentOptions([{ label: "Nenhum", value: null }, ...newStudents]);
 	};
 
 	useEffect(() => {

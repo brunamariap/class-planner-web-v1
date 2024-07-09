@@ -8,6 +8,7 @@ import {
 	useEffect,
 	useState,
 } from "react";
+import { useAuth } from "./AuthContext";
 
 interface GlobalProviderProps {
 	children: React.ReactNode;
@@ -35,6 +36,8 @@ const GlobalProvider = ({ children }: GlobalProviderProps) => {
 	const [classes, setClasses] = useState<Class[]>([]);
 	const [teachers, setTeachers] = useState<Teacher[]>([]);
 
+	const { user, loading } = useAuth();
+
 	const getAllCourses = useCallback(async () => {
 		const { data } = await api.get("courses/");
 
@@ -54,10 +57,12 @@ const GlobalProvider = ({ children }: GlobalProviderProps) => {
 	}, []);
 
 	useEffect(() => {
-		getAllCourses();
-		getAllClasses();
-		getAllTeachers();
-	}, []);
+		if (!loading && user) {
+			getAllCourses();
+			getAllClasses();
+			getAllTeachers();
+		}
+	}, [loading, user]);
 
 	return (
 		<GlobalContext.Provider

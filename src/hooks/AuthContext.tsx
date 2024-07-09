@@ -8,6 +8,7 @@ import {
 	useState,
 } from "react";
 import { useRouter } from "next/navigation";
+import { data } from "autoprefixer";
 
 interface AuthProviderProps {
 	children: React.ReactNode;
@@ -15,6 +16,7 @@ interface AuthProviderProps {
 
 interface AuthContextValues {
 	user: Teacher | undefined;
+	loading: boolean;
 	setUser: React.Dispatch<React.SetStateAction<Teacher | undefined>>;
 	login: (username: string, password: string) => Promise<void>;
 	logout: () => Promise<void>;
@@ -32,6 +34,8 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
 		const savedUser = storagedSession ? JSON.parse(storagedSession) : null;
 		return savedUser;
 	});
+
+	const [loading, setLoading] = useState<boolean>(true);
 
 	const hasTeacherPermissions = user?.department === "Professor";
 	const hasEmployeePermissions = user?.department === "Aluno";
@@ -66,7 +70,6 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
 
 	const getTeacherProfile = useCallback(async () => {
 		try {
-			// const { data } = await suapApi.get("minhas-informacoes/meus-dados/");
 			const { data } = await api.get(`users/me/`);
 
 			// if (data.tipo_vinculo !== "Aluno") {
@@ -101,7 +104,6 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
 				password: password,
 			};
 
-			// const { data } = await suapApi.post("autenticacao/token/", params);
 			const { data } = await api.post("token/", params);
 
 			localStorage.setItem("@ClassPlanner:token", data.access);
@@ -124,10 +126,18 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
 	}, []);
 
 	const loadSavedSession = async () => {
-		const storagedSession = localStorage.getItem("@ClassPlanner:user");
+		// const storagedSession = localStorage.getItem("@ClassPlanner:user");
 
-		const savedUser = storagedSession ? JSON.parse(storagedSession) : null;
-		if (savedUser) setUser(savedUser);
+		// const savedUser = storagedSession ? JSON.parse(storagedSession) : null;
+		// if (savedUser) setUser(savedUser);
+		setLoading(true);
+		try {
+			const storagedSession = localStorage.getItem("@ClassPlanner:user");
+			const savedUser = storagedSession ? JSON.parse(storagedSession) : null;
+			if (savedUser) setUser(savedUser);
+		} finally {
+			setLoading(false);
+		}
 	};
 
 	useEffect(() => {
@@ -138,6 +148,7 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
 		<AuthContext.Provider
 			value={{
 				user,
+				loading,
 				setUser,
 				login,
 				logout,
